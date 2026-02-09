@@ -1,0 +1,13 @@
+# Archivos de Visual Studio
+.vs/
+*.user
+*.suo
+*.vscode/
+
+# Binarios y compilados
+bin/
+obj/
+
+# Archivos de configuración locales
+*.log
+*.tmp
