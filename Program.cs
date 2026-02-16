@@ -20,6 +20,17 @@ builder.Services.AddScoped<ISocioService, SocioService>();
 builder.Services.AddScoped<ITipoMembresiaService, TipoMembresiaService>();
 builder.Services.AddScoped<IMembresiaService, MembresiaService>();
 builder.Services.AddScoped<IPagoService, PagoService>();
+// Configuración de CORS (Permitir que React entre)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirReact",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") // La URL de tu Frontend
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
 var app = builder.Build();
 
@@ -32,6 +43,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("PermitirReact"); 
 app.UseAuthorization();
 
 app.MapControllers();

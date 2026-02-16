@@ -1,15 +1,28 @@
-import { useState } from "react";
-import { Search, Plus, Filter, MoreVertical, Edit, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react"; // Agregamos useEffect
+import { Search, Plus, Filter, Edit, Trash2 } from "lucide-react";
+import api from "../config/api"; // Importamos nuestra conexión
+import toast from "react-hot-toast";
 
 const Socios = () => {
-  // Datos "Mock" (Falsos) para probar el diseño antes de conectar la API
-  const [socios] = useState([
-    { id: 1, nombre: "Ana García", dni: "12345678", plan: "Pase Libre", estado: "Activo", vencimiento: "2026-03-15" },
-    { id: 2, nombre: "Carlos López", dni: "87654321", plan: "3 Días", estado: "Vencido", vencimiento: "2026-02-10" },
-    { id: 3, nombre: "Mariana Ruiz", dni: "11223344", plan: "Pase Libre", estado: "Activo", vencimiento: "2026-03-01" },
-    { id: 4, nombre: "Jorge Diaz", dni: "99887766", plan: "Musculación", estado: "Inactivo", vencimiento: "2025-12-20" },
-  ]);
+  const [socios, setSocios] = useState([]); // Estado para almacenar los socios
+  const [loading, setLoading] = useState(true); // Estado para manejar la carga
 
+  //función se ejecuta automáticamente al entrar a la página
+  useEffect(() => {
+    cargarSocios();
+  }, []);
+
+  const cargarSocios = async() => {
+    try{
+      const response = await api.get('/Socios'); //Pide los datos al backend
+      setSocios(response.data); //Guarda los datos en el estado
+      setLoading(false); //Indica que ya no está cargando
+    }catch(error){
+      console.error("Error al cargar socios:", error);
+      toast.error("No se pudieron cargar los socios. Intenta nuevamente.");
+      setLoading(false); //Indica que ya no está cargando aunque haya error
+    }
+  };
   return (
     <div className="space-y-6">
       {/* Encabezado de la página */}
