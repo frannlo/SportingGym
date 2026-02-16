@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SportingGym.Infrastructure;
 using SportingGym.WebApi.Application.Interfaces;
 using SportingGym.WebApi.Application.Services;
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,9 @@ builder.Services.AddSwaggerGen();
 
 //Inyección de dependencias de Servicios
 builder.Services.AddScoped<ISocioService, SocioService>();
+builder.Services.AddScoped<ITipoMembresiaService, TipoMembresiaService>();
+builder.Services.AddScoped<IMembresiaService, MembresiaService>();
+builder.Services.AddScoped<IPagoService, PagoService>();
 
 var app = builder.Build();
 
