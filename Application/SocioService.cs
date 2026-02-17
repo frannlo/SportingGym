@@ -28,9 +28,12 @@ namespace SportingGym.WebApi.Application.Services
             {
                 Id = s.Id,
                 Dni = s.Dni,
-                NombreCompleto = $"{s.Nombre} {s.Apellido}",
+                Nombre = s.Nombre,     
+                Apellido = s.Apellido,
                 Email = s.Email,
-                Estado = s.Activo ? "Activo" : "Inactivo"
+                Estado = s.Activo ? "Activo" : "Inactivo",
+                Telefono = s.Telefono ?? string.Empty, 
+                FechaNacimiento = s.FechaNacimiento
             }).ToList();
         }
 
@@ -44,9 +47,12 @@ namespace SportingGym.WebApi.Application.Services
             {
                 Id = socio.Id,
                 Dni = socio.Dni,
-                NombreCompleto = $"{socio.Nombre} {socio.Apellido}",
+                Nombre = socio.Nombre,
+                Apellido = socio.Apellido,
                 Email = socio.Email,
-                Estado = socio.Activo ? "Activo" : "Inactivo"
+                Estado = socio.Activo ? "Activo" : "Inactivo",
+                Telefono = socio.Telefono ?? string.Empty, 
+                FechaNacimiento = socio.FechaNacimiento
             };
         }
 
@@ -77,7 +83,8 @@ namespace SportingGym.WebApi.Application.Services
             {
                 Id = nuevoSocio.Id,
                 Dni = nuevoSocio.Dni,
-                NombreCompleto = $"{nuevoSocio.Nombre} {nuevoSocio.Apellido}",
+                Nombre = dto.Nombre,
+                Apellido = dto.Apellido,
                 Email = nuevoSocio.Email,
                 Estado = "Activo"
             };

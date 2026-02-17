@@ -3,6 +3,7 @@ import { Search, Plus, Filter, Edit, Trash2 } from "lucide-react";
 import api from "../config/api";
 import toast from "react-hot-toast";
 import SocioForm from "./SocioForm";
+import Swal from 'sweetalert2';
 
 const Socios = () => {
   const [socios, setSocios] = useState([]);
@@ -17,6 +18,7 @@ const Socios = () => {
   const cargarSocios = async () => {
     try {
       const response = await api.get('/Socios');
+      console.log("DATOS RECIBIDOS:", response.data); // <--- AGREGA ESTO
       setSocios(response.data);
       setLoading(false);
     } catch (error) {
@@ -39,19 +41,33 @@ const Socios = () => {
   };
 
   // Función para borrar un socio
-  const handleDelete = async (id) => {
-    if (!window.confirm("¿Estás seguro de eliminar este socio? Esta acción no se puede deshacer.")) return;
-
-    try {
-      await api.delete(`/Socios/${id}`);
-      toast.success("Socio eliminado correctamente");
-      cargarSocios(); // Recargamos la lista
-    } catch (error) {
-      console.error(error);
-      toast.error("No se pudo eliminar el socio");
-    }
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "No podrás revertir esta acción",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#2563eb', 
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/Socios/${id}`);
+          Swal.fire(
+            '¡Eliminado!',
+            'El socio ha sido eliminado.',
+            'success'
+          );
+          cargarSocios(); // Recargar tabla
+        } catch (error) {
+          console.error(error);
+          toast.error("No se pudo eliminar el socio");
+        }
+      }
+    });
   };
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -61,7 +77,7 @@ const Socios = () => {
         </div>
         
         <button 
-          onClick={handleNew} // Usamos la nueva función handleNew
+          onClick={handleNew} // función handleNew
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm font-medium"
         >
           <Plus size={20} />
