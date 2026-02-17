@@ -18,7 +18,7 @@ const Socios = () => {
   const cargarSocios = async () => {
     try {
       const response = await api.get('/Socios');
-      console.log("DATOS RECIBIDOS:", response.data); // <--- AGREGA ESTO
+      console.log("DATOS RECIBIDOS:", response.data); 
       setSocios(response.data);
       setLoading(false);
     } catch (error) {
@@ -31,12 +31,12 @@ const Socios = () => {
   // Función para abrir el modal en modo edición
   const handleEdit = (socio) => {
     setSocioEditar(socio); // Guardamos el socio seleccionado
-    setShowModal(true);    // Abrimos el modal
+    setShowModal(true);    
   };
 
   // Función para abrir el modal en modo creación (limpio)
   const handleNew = () => {
-    setSocioEditar(null); // Nos aseguramos de que esté vacío
+    setSocioEditar(null); 
     setShowModal(true);
   };
 
