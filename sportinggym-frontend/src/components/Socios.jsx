@@ -1,101 +1,108 @@
-import { useState, useEffect } from "react"; // Agregamos useEffect
+import { useState, useEffect } from "react";
 import { Search, Plus, Filter, Edit, Trash2 } from "lucide-react";
-import api from "../config/api"; // Importamos nuestra conexión
+import api from "../config/api";
 import toast from "react-hot-toast";
+import SocioForm from "./SocioForm";
 
 const Socios = () => {
-  const [socios, setSocios] = useState([]); // Estado para almacenar los socios
-  const [loading, setLoading] = useState(true); // Estado para manejar la carga
+  const [socios, setSocios] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [socioEditar, setSocioEditar] = useState(null); // <--- Nuevo estado para saber a quién editamos
 
-  //función se ejecuta automáticamente al entrar a la página
   useEffect(() => {
     cargarSocios();
   }, []);
 
-  const cargarSocios = async() => {
-    try{
-      const response = await api.get('/Socios'); //Pide los datos al backend
-      setSocios(response.data); //Guarda los datos en el estado
-      setLoading(false); //Indica que ya no está cargando
-    }catch(error){
-      console.error("Error al cargar socios:", error);
-      toast.error("No se pudieron cargar los socios. Intenta nuevamente.");
-      setLoading(false); //Indica que ya no está cargando aunque haya error
+  const cargarSocios = async () => {
+    try {
+      const response = await api.get('/Socios');
+      setSocios(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error cargando socios:", error);
+      toast.error("Error de conexión");
+      setLoading(false);
     }
   };
+
+  // Función para abrir el modal en modo edición
+  const handleEdit = (socio) => {
+    setSocioEditar(socio); // Guardamos el socio seleccionado
+    setShowModal(true);    // Abrimos el modal
+  };
+
+  // Función para abrir el modal en modo creación (limpio)
+  const handleNew = () => {
+    setSocioEditar(null); // Nos aseguramos de que esté vacío
+    setShowModal(true);
+  };
+
+  // Función para borrar un socio
+  const handleDelete = async (id) => {
+    if (!window.confirm("¿Estás seguro de eliminar este socio? Esta acción no se puede deshacer.")) return;
+
+    try {
+      await api.delete(`/Socios/${id}`);
+      toast.success("Socio eliminado correctamente");
+      cargarSocios(); // Recargamos la lista
+    } catch (error) {
+      console.error(error);
+      toast.error("No se pudo eliminar el socio");
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Encabezado de la página */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Gestión de Socios</h2>
-          <p className="text-slate-500">Administra los miembros del gimnasio y sus estados.</p>
+          <p className="text-slate-500">Listado general de miembros activos.</p>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm">
+        
+        <button 
+          onClick={handleNew} // Usamos la nueva función handleNew
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm font-medium"
+        >
           <Plus size={20} />
           Nuevo Socio
         </button>
       </div>
 
-      {/* Barra de Herramientas (Búsqueda y Filtros) */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 justify-between items-center">
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
-          <input 
-            type="text" 
-            placeholder="Buscar por nombre o DNI..." 
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          />
-        </div>
-        <button className="flex items-center gap-2 text-slate-600 hover:text-blue-600 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
-          <Filter size={18} />
-          Filtros
-        </button>
-      </div>
-
-      {/* Tabla de Datos */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
+         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-sm uppercase tracking-wider">
-                <th className="p-4 font-semibold">Socio</th>
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-sm uppercase">
+                <th className="p-4 font-semibold">Nombre</th>
                 <th className="p-4 font-semibold">DNI</th>
-                <th className="p-4 font-semibold">Plan Actual</th>
-                <th className="p-4 font-semibold">Vencimiento</th>
-                <th className="p-4 font-semibold">Estado</th>
-                <th className="p-4 text-right">Acciones</th>
+                <th className="p-4 font-semibold">Email</th>
+                <th className="p-4 font-semibold text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {socios.map((socio) => (
                 <tr key={socio.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="p-4">
-                    <div className="font-medium text-slate-900">{socio.nombre}</div>
-                    <div className="text-xs text-slate-500">ID: #{socio.id}</div>
-                  </td>
+                  <td className="p-4 font-medium text-slate-900">{socio.nombre} {socio.apellido}</td>
                   <td className="p-4 text-slate-600 font-mono">{socio.dni}</td>
-                  <td className="p-4">
-                    <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs font-medium">
-                      {socio.plan}
-                    </span>
-                  </td>
-                  <td className="p-4 text-slate-600">{socio.vencimiento}</td>
-                  <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      socio.estado === "Activo" ? "bg-green-100 text-green-700" :
-                      socio.estado === "Vencido" ? "bg-red-100 text-red-700" :
-                      "bg-gray-100 text-gray-700"
-                    }`}>
-                      {socio.estado}
-                    </span>
-                  </td>
+                  <td className="p-4 text-slate-500">{socio.email}</td>
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                      {/* Botón Editar */}
+                      <button 
+                        onClick={() => handleEdit(socio)}
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Editar"
+                      >
                         <Edit size={18} />
                       </button>
-                      <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                      
+                      {/* Botón Eliminar */}
+                      <button 
+                        onClick={() => handleDelete(socio.id)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Eliminar"
+                      >
                         <Trash2 size={18} />
                       </button>
                     </div>
@@ -104,17 +111,16 @@ const Socios = () => {
               ))}
             </tbody>
           </table>
-        </div>
-        
-        {/* Paginación simple */}
-        <div className="p-4 border-t border-slate-200 flex justify-between items-center text-sm text-slate-500">
-          <span>Mostrando 4 de 24 socios</span>
-          <div className="flex gap-2">
-            <button className="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50">Anterior</button>
-            <button className="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50">Siguiente</button>
-          </div>
-        </div>
+         </div>
       </div>
+
+      {showModal && (
+        <SocioForm 
+          onClose={() => setShowModal(false)} 
+          onSuccess={cargarSocios}
+          socioToEdit={socioEditar} // <--- Pasamos el socio seleccionado (o null)
+        />
+      )}
     </div>
   );
 };
