@@ -20,14 +20,11 @@ namespace SportingGym.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuraciones extra (opcional por ahora, pero buena práctica)
 
-            // Ejemplo: Definir que el DNI es único en la base de datos
             modelBuilder.Entity<Socio>()
                 .HasIndex(s => s.Dni)
                 .IsUnique();
 
-            // Configurar precisión para montos de dinero (evita errores de redondeo)
             modelBuilder.Entity<TipoMembresia>()
                 .Property(t => t.Costo)
                 .HasPrecision(18, 2);

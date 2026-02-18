@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SportingGym.Application.DTOs;
+using SportingGym.Infrastructure;
 using SportingGym.WebApi.Application.DTOs;
 using SportingGym.WebApi.Application.Interfaces;
 
@@ -10,11 +12,12 @@ namespace SportingGym.Controllers
     public class SociosController : ControllerBase
     {
         private readonly ISocioService _socioService;
-
+        private readonly ApplicationDbContext _context;
         //Contructor para inyectar el servicio de socios que se ha registrado en Program.cs
-        public SociosController(ISocioService socioService)
+        public SociosController(ISocioService socioService, ApplicationDbContext context)
         {
             _socioService = socioService;
+            _context = context;
         }
 
         //GET: api/socios
@@ -37,6 +40,7 @@ namespace SportingGym.Controllers
             return Ok(socio);
 
         }
+
         //POST: api/socios
         [HttpPost]
         public async Task<ActionResult<SocioResponseDto>> Create(SocioCreateDto socioDto)
@@ -62,6 +66,25 @@ namespace SportingGym.Controllers
 
             return NoContent(); // 204 No Content es el estándar para updates exitosos
         }
+        // PUT: api/Socios/5/estado
+        [HttpPut("{id}/estado")]
+        public async Task<IActionResult> CambiarEstado(int id)
+        {
+            var socio = await _context.Socios.FindAsync(id);
+
+            if (socio == null)
+            {
+                return NotFound();
+            }
+
+            socio.Activo = !socio.Activo;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = $"El socio ahora está {(socio.Activo ? "Activo" : "Inactivo")}" });
+        }
+        // Endpoint temporal para arreglar la BD
+        
 
         // DELETE: api/socios/5
         [HttpDelete("{id}")]
@@ -72,5 +95,6 @@ namespace SportingGym.Controllers
 
             return NoContent();
         }
+        
     }
 }

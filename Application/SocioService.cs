@@ -20,20 +20,30 @@ namespace SportingGym.WebApi.Application.Services
         public async Task<List<SocioResponseDto>> GetAllAsync()
         {
             var socios = await _context.Socios
-                .Where(s => s.Activo) // Solo traemos los activos (Soft Delete)
+                .Include(s => s.Membresias)          // Traemos historial
+                .ThenInclude(m => m.TipoMembresia)   // Traemos nombre del plan
                 .ToListAsync();
 
-            // Mapeo manual (en proyectos grandes usaríamos AutoMapper, pero así se aprende mejor)
-            return socios.Select(s => new SocioResponseDto
-            {
-                Id = s.Id,
-                Dni = s.Dni,
-                Nombre = s.Nombre,     
-                Apellido = s.Apellido,
-                Email = s.Email,
-                Estado = s.Activo ? "Activo" : "Inactivo",
-                Telefono = s.Telefono ?? string.Empty, 
-                FechaNacimiento = s.FechaNacimiento
+            return socios.Select(s => {
+                // Buscamos la última membresía vigente
+                var ultimaMembresia = s.Membresias
+                    .Where(m => m.FechaFin >= DateTime.UtcNow) // Que no haya vencido
+                    .OrderByDescending(m => m.FechaFin)
+                    .FirstOrDefault();
+
+                return new SocioResponseDto
+                {
+                    Id = s.Id,
+                    Nombre = s.Nombre,
+                    Apellido = s.Apellido,
+                    Dni = s.Dni,
+                    Activo = s.Activo,
+                    Email = s.Email,
+                    Telefono = s.Telefono,
+                    FechaNacimiento = s.FechaNacimiento,
+                    // Lógica para mostrar el plan
+                    NombrePlan = ultimaMembresia != null ? ultimaMembresia.TipoMembresia.Nombre : "Sin membresía"
+                };
             }).ToList();
         }
 
@@ -50,7 +60,7 @@ namespace SportingGym.WebApi.Application.Services
                 Nombre = socio.Nombre,
                 Apellido = socio.Apellido,
                 Email = socio.Email,
-                Estado = socio.Activo ? "Activo" : "Inactivo",
+                Activo = socio.Activo,
                 Telefono = socio.Telefono ?? string.Empty, 
                 FechaNacimiento = socio.FechaNacimiento
             };
@@ -58,36 +68,71 @@ namespace SportingGym.WebApi.Application.Services
 
         public async Task<SocioResponseDto> CreateAsync(SocioCreateDto dto)
         {
-            // Validar si el DNI ya existe (Regla de negocio crítica)
+            // 1. Validaciones previas
             if (await _context.Socios.AnyAsync(s => s.Dni == dto.Dni))
             {
                 throw new Exception("Ya existe un socio con ese DNI.");
             }
 
-            var nuevoSocio = new Socio
-            {
-                Dni = dto.Dni,
-                Nombre = dto.Nombre,
-                Apellido = dto.Apellido,
-                Email = dto.Email,
-                Telefono = dto.Telefono,
-                FechaNacimiento = dto.FechaNacimiento,
-                FechaAlta = DateTime.UtcNow,
-                Activo = true
-            };
+            // Verificamos que el plan exista
+            var plan = await _context.TiposMembresia.FindAsync(dto.TipoMembresiaId);
+            if (plan == null) throw new Exception("El plan seleccionado no existe.");
 
-            _context.Socios.Add(nuevoSocio);
-            await _context.SaveChangesAsync();
+            // 2. INICIO DE LA TRANSACCIÓN
+            // Esto asegura que si algo falla, no se guarda nada a medias.
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            return new SocioResponseDto
+            try
             {
-                Id = nuevoSocio.Id,
-                Dni = nuevoSocio.Dni,
-                Nombre = dto.Nombre,
-                Apellido = dto.Apellido,
-                Email = nuevoSocio.Email,
-                Estado = "Activo"
-            };
+                // A. Crear el Socio
+                var nuevoSocio = new Socio
+                {
+                    Dni = dto.Dni,
+                    Nombre = dto.Nombre,
+                    Apellido = dto.Apellido,
+                    Email = dto.Email,
+                    Telefono = dto.Telefono,
+                    FechaNacimiento = dto.FechaNacimiento,
+                    FechaAlta = DateTime.UtcNow,
+                    Activo = true
+                };
+
+                _context.Socios.Add(nuevoSocio);
+                await _context.SaveChangesAsync(); // Aquí se genera el ID del socio
+
+                // B. Crear la Membresía Automática
+                var nuevaMembresia = new Membresia
+                {
+                    SocioId = nuevoSocio.Id, // Usamos el ID recién creado
+                    TipoMembresiaId = plan.Id,
+                    FechaInicio = DateTime.UtcNow,
+                    FechaFin = DateTime.UtcNow.AddDays(30), 
+                };
+
+                _context.Membresias.Add(nuevaMembresia);
+                await _context.SaveChangesAsync();
+
+                // C. Confirmar todo (Commit)
+                await transaction.CommitAsync();
+
+                return new SocioResponseDto
+                {
+                    Id = nuevoSocio.Id,
+                    Dni = nuevoSocio.Dni,
+                    Nombre = nuevoSocio.Nombre,
+                    Apellido = nuevoSocio.Apellido,
+                    Email = nuevoSocio.Email,
+                    Telefono = nuevoSocio.Telefono,
+                    NombrePlan = plan.Nombre, // Devolvemos el nombre del plan asignado
+                    Activo = true
+                };
+            }
+            catch (Exception)
+            {
+                // Si algo falló, deshacemos todo
+                await transaction.RollbackAsync();
+                throw; // Re-lanzamos el error para que lo vea el Controller
+            }
         }
 
         public async Task<bool> UpdateAsync(int id, SocioCreateDto dto)

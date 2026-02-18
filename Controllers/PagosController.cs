@@ -29,16 +29,18 @@ namespace SportingGym.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<ActionResult<List<PagoResponseDto>>> GetAll()
+        {
+            // Asegúrate de que tu servicio tenga este método llamado GetAllAsync o ObtenerTodosAsync
+            var pagos = await _service.GetAllAsync();
+            return Ok(pagos);
+        }
+
         [HttpGet("socio/{socioId}")]
         public async Task<ActionResult<List<PagoResponseDto>>> GetPorSocio(int socioId)
         {
             return Ok(await _service.GetBySocioIdAsync(socioId));
         }
-    }
-}
-namespace SportingGym.Controllers
-{
-    public class PagosController
-    {
     }
 }

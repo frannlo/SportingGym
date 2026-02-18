@@ -24,5 +24,10 @@ namespace SportingGym.Application.DTOs
         public string? Telefono { get; set; }
 
         public DateTime FechaNacimiento { get; set; }
+
+        [Required(ErrorMessage = "Debes seleccionar una membresía para dar de alta al socio")]
+        [Range(1, int.MaxValue, ErrorMessage = "Membresía inválida")]
+        public int TipoMembresiaId { get; set; }
+
     }
 }

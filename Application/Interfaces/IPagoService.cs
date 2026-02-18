@@ -6,5 +6,6 @@ namespace SportingGym.WebApi.Application.Interfaces
     {
         Task<PagoResponseDto> RegistrarPagoAsync(PagoCreateDto dto);
         Task<List<PagoResponseDto>> GetBySocioIdAsync(int socioId);
+        Task<List<PagoResponseDto>> GetAllAsync();
     }
 }

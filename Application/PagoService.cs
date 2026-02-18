@@ -64,5 +64,23 @@ namespace SportingGym.WebApi.Application.Services
                 NombreSocio = $"{p.Socio.Nombre} {p.Socio.Apellido}"
             }).ToList();
         }
+
+        public async Task<List<PagoResponseDto>> GetAllAsync()
+        {
+            var pagos = await _context.Pagos
+                .Include(p => p.Socio)
+                .OrderByDescending(p => p.FechaPago)
+                .ToListAsync();
+
+            return pagos.Select(p => new PagoResponseDto
+            {
+                Id = p.Id,
+                Monto = p.Monto,
+                Fecha = p.FechaPago,
+                Metodo = p.Metodo.ToString(),
+                NombreSocio = p.Socio != null ? $"{p.Socio.Nombre} {p.Socio.Apellido}" : "Socio Eliminado",
+                Comprobante = null
+            }).ToList();
+        }
     }
 }
