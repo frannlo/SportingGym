@@ -81,6 +81,7 @@ namespace SportingGym.WebApi.Application.Services
         {
             var tipo = await _context.TiposMembresia.FindAsync(id);
             if (tipo == null) return false;
+            if (await _context.Membresias.AnyAsync(m => m.TipoMembresiaId == id)) throw new Exception("No se puede borrar un plan en uso.");
 
             _context.TiposMembresia.Remove(tipo);
             await _context.SaveChangesAsync();

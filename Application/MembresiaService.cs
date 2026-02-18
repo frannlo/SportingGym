@@ -76,6 +76,8 @@ namespace SportingGym.WebApi.Application.Services
 
             return lista.Select(MapToDto).ToList();
         }
+        // POST: api/Membresias/renovar
+        
 
         // Método auxiliar para no repetir código de mapeo
         private static MembresiaResponseDto MapToDto(Membresia m)
