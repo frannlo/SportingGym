@@ -3,7 +3,7 @@ import { DollarSign, Calendar, ChevronLeft, ChevronRight, Search, Printer } from
 import api from "../config/api";
 import toast from "react-hot-toast";
 import CobroModal from "./CobroModal";
-//COPILOT CHUPAPIJAS 
+ 
 
 const Pagos = () => {
   const [pagos, setPagos] = useState([]);
