@@ -14,7 +14,7 @@
 
 | Dashboard Principal | Gestión de Socios |
 |:-------------------:|:-----------------:|
-| ![Dashboard](./screenshots/dashboard.png) | ![Socios](./screenshots/socios.png) |
+| ![Dashboard](./screenshots/dashboard.png) | ![Socios](./screenshots/Socios.png) |
 | *Vista general de KPIs y alertas* | *Listado con estados y acciones rápidas* |
 
 ---
