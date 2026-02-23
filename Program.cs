@@ -48,4 +48,18 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// --- AUTO-MIGRACIÓN PARA DOCKER ---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<SportingGym.Infrastructure.ApplicationDbContext>(); 
+        context.Database.Migrate(); 
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Error al aplicar migraciones: " + ex.Message);
+    }
+}
 app.Run();
