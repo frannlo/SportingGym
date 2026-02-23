@@ -13,7 +13,7 @@
         public bool Activo { get; set; } = true; // Para baja lógica (Soft Delete)
 
         // Relaciones
-        public ICollection<Membresia> Membresias { get; set; } = new List<Membresia>();
+        public virtual ICollection<Membresia>? Membresias { get; set; } = new List<Membresia>(); 
         public ICollection<Pago> Pagos { get; set; } = new List<Pago>();
     }
 }

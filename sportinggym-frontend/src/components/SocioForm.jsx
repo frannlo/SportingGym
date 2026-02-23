@@ -58,40 +58,52 @@ const SocioForm = ({ onClose, onSuccess, socioToEdit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       if (socioToEdit) {
-        // --- MODO EDICIÓN (PUT) ---
-        // Al editar, normalmente no cambiamos la membresía aquí, solo datos personales
-        const { tipoMembresiaId, ...datosEdicion } = formData; // Excluimos el plan del payload
-        await api.put(`/Socios/${socioToEdit.id}`, datosEdicion);
+        // MODO EDICIÓN
+        const payloadEdicion = {
+          id: socioToEdit.id,
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          dni: formData.dni,
+          email: formData.email,
+          telefono: formData.telefono,
+          fechaNacimiento: formData.fechaNacimiento
+        };
+
+        await api.put(`/Socios/${socioToEdit.id}`, payloadEdicion);
         toast.success("Socio actualizado correctamente");
       } else {
-        // --- MODO CREACIÓN (POST) ---
-        // Validamos que haya elegido un plan
+        // MODO CREACIÓN (POST)
         if (!formData.tipoMembresiaId) {
-            toast.error("Debes seleccionar un plan de membresía");
+            toast.error("Debes seleccionar un plan");
             setLoading(false);
             return;
         }
 
-        // Enviamos todo, asegurando que el ID sea número
         const payload = {
             ...formData,
             tipoMembresiaId: parseInt(formData.tipoMembresiaId)
         };
         
         await api.post("/Socios", payload);
-        toast.success("¡Socio registrado con membresía activa!");
+        toast.success("¡Socio registrado!");
       }
 
-      onSuccess(); // Recargar la tabla padre
-      onClose();   // Cerrar modal
+      onSuccess();
+      onClose();
     } catch (error) {
-      console.error(error);
-      // Extraer mensaje de error del backend si existe
-      const errorMsg = error.response?.data?.message || error.response?.data || "Error al guardar el socio";
-      toast.error(typeof errorMsg === 'string' ? errorMsg : "Error de validación");
+      console.error("Detalle completo del error:", error.response?.data);
+      
+      if (error.response?.data?.errors) {
+          const validationErrors = error.response.data.errors;
+          const firstField = Object.keys(validationErrors)[0];
+          const firstErrorMessage = validationErrors[firstField][0];
+          toast.error(`Error en ${firstField}: ${firstErrorMessage}`);
+      } else {
+          const errorMsg = error.response?.data?.message || "Error desconocido";
+          toast.error(typeof errorMsg === 'string' ? errorMsg : "Error al guardar");
+      }
     } finally {
       setLoading(false);
     }

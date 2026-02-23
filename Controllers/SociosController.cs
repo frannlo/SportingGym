@@ -59,12 +59,33 @@ namespace SportingGym.Controllers
         }
         // PUT: api/socios/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, SocioCreateDto socioDto)
+        public async Task<IActionResult> Update(int id, [FromBody] SocioUpdateDto socioDto)
         {
-            var actualizado = await _socioService.UpdateAsync(id, socioDto);
-            if (!actualizado) return NotFound("Socio no encontrado.");
+            if (id != socioDto.Id)
+            {
+                return BadRequest("El ID del socio no coincide.");
+            }
 
-            return NoContent(); // 204 No Content es el estándar para updates exitosos
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Aquí buscas el socio en la base de datos
+            var socioExistente = await _context.Socios.FindAsync(id);
+            if (socioExistente == null) return NotFound();
+
+            // Mapeas los datos nuevos al socio existente
+            socioExistente.Nombre = socioDto.Nombre;
+            socioExistente.Apellido = socioDto.Apellido;
+            socioExistente.Dni = socioDto.Dni;
+            socioExistente.Email = socioDto.Email;
+            socioExistente.Telefono = socioDto.Telefono;
+            socioExistente.FechaNacimiento = socioDto.FechaNacimiento;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
         // PUT: api/Socios/5/estado
         [HttpPut("{id}/estado")]
