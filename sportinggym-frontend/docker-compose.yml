@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adminpassword
+      POSTGRES_DB: SportingGymDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: 
+      context: . 
+      dockerfile: Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=SportingGymDb;Username=postgres;Password=adminpassword
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./sportinggym-frontend 
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
