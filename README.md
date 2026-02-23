@@ -70,6 +70,22 @@ Sigue estos pasos para correr el proyecto localmente.
 
 ### 1. Configuración del Backend
 
-1. Clona el repositorio:
-   ```bash
-   git clone [https://github.com/tu-usuario/SportingGym.git](https://github.com/tu-usuario/SportingGym.git)
+   1. Clona el repositorio:
+      ```bash
+      git clone [https://github.com/tu-usuario/SportingGym.git](https://github.com/tu-usuario/SportingGym.git)
+   2.Navega a la carpeta del Backend y configura tu cadena de conexión en appsettings.json:
+      "ConnectionStrings": {
+        "DefaultConnection": "Host=localhost;Port=5432;Database=SportingGymDb;Username=tu_usuario;Password=tu_password"
+      }
+   3.Ejecuta las migraciones para crear la base de datos:
+      dotnet ef database update
+   4.Corre la API:
+      dotnet run
+### 2. Configuración del Frontend
+1. Navega a la carpeta del Frontend:
+   cd sporting-gym-frontend
+2. Instala las dependencias:
+   npm install
+3. Crea un archivo .env si es necesario para apuntar a tu API (por defecto localhost:puerto).
+4. Inicia el servidor de desarrollo:
+   npm run dev
