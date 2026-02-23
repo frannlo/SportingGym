@@ -5,6 +5,7 @@
 ![Backend](https://img.shields.io/badge/.NET-8.0-purple)
 ![Frontend](https://img.shields.io/badge/React-Vite-blue)
 ![Database](https://img.shields.io/badge/PostgreSQL-Elephant-blue)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
 
 **SportingGym** es una aplicación web integral diseñada para modernizar la administración de gimnasios locales. Permite gestionar socios, controlar vencimientos de cuotas, administrar planes de membresía y llevar un control estricto de la caja diaria, reemplazando las planillas de cálculo manuales por un sistema automatizado y eficiente.
 
@@ -15,7 +16,10 @@
 | Dashboard Principal | Gestión de Socios |
 |:-------------------:|:-----------------:|
 | ![Dashboard](./screenshots/dashboard.png) | ![Socios](./screenshots/Socios.png) |
-| *Vista general de KPIs y alertas* | *Listado con estados y acciones rápidas* |
+| *Vista general de KPIs y alertas* | *Listado con estados y fechas de vencimiento* |
+| **Gestión de Membresías** | **Control de Pagos y Caja** |
+| ![Membresías](./screenshots/membresias.png) | ![Pagos](./screenshots/pagos.png) |
+| *Configuración de planes y tarifas dinámicas* | *Registro de ingresos y reporte de cierre listo para imprimir* |
 
 ---
 
@@ -28,17 +32,17 @@
 
 ### 👥 Gestión de Socios
 - **CRUD Completo:** Alta, baja (lógica/soft delete) y modificación de datos personales.
-- **Estado de Actividad:** Interruptor rápido para activar/desactivar el acceso de un socio.
+- **Estado de Actividad:** Indicadores de vencimiento en tiempo real y bloqueo de acceso a deudores.
 - **Asignación de Planes:** Vinculación automática de membresía al momento del alta.
 
 ### 💳 Control de Caja y Pagos
 - **Registro de Cobros:** Flujo transaccional que registra el ingreso de dinero y renueva la membresía del socio automáticamente.
 - **Cierre de Caja Diario:** Filtro por fecha para validar la recaudación del día contra el efectivo físico.
-- **Histórico de Movimientos:** Auditoría completa de todos los ingresos.
+- **Comprobantes Profesionales:** Generación de un reporte de cierre de caja optimizado para impresión térmica o A4.
 
 ### 🏷️ Gestión de Tarifas
 - **Planes Personalizables:** Creación y edición de tipos de membresía (Ej: Pase Libre, 3 días x semana).
-- **Control de Precios:** Actualización de costos sin necesidad de tocar la base de datos.
+- **Control de Precios:** Actualización de costos de forma sencilla y directa.
 
 ---
 
@@ -46,46 +50,48 @@
 
 ### Backend (API)
 - **Framework:** .NET 8 (C#)
-- **ORM:** Entity Framework Core (Code First)
+- **ORM:** Entity Framework Core (Code First con Auto-Migración)
 - **Base de Datos:** PostgreSQL
-- **Arquitectura:** Patrón Controlador-Servicio-Repositorio.
+- **Arquitectura:** Patrón Controlador-Servicio-Repositorio
 
 ### Frontend (Cliente)
 - **Framework:** React + Vite
 - **Estilos:** Tailwind CSS
 - **Iconos:** Lucide React
-- **Notificaciones:** SweetAlert2 & React Hot Toast
+- **Notificaciones:** React Hot Toast
 - **HTTP Client:** Axios
 
 ---
 
-## 💻 Instalación y Configuración
+## 💻 Instalación y Ejecución
 
-Sigue estos pasos para correr el proyecto localmente.
+### Opción 1: Despliegue rápido con Docker 🐳 (Recomendado)
+La forma más sencilla de probar el proyecto. No necesitas instalar bases de datos, ni .NET, ni Node.js. El sistema crea las tablas automáticamente al iniciar.
 
-### Prerrequisitos
-- .NET 8 SDK
-- Node.js & npm
-- PostgreSQL instalado y corriendo.
+**Prerrequisitos:** [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-### 1. Configuración del Backend
-
-   1. Clona el repositorio:
-      ```bash
-      git clone [https://github.com/tu-usuario/SportingGym.git](https://github.com/tu-usuario/SportingGym.git)
-   2. Navega a la carpeta del Backend y configura tu cadena de conexión en appsettings.json:
-      "ConnectionStrings": {
-        "DefaultConnection": "Host=localhost;Port=5432;Database=SportingGymDb;Username=tu_usuario;Password=tu_password"
-      }
+1. Clona el repositorio y entra a la carpeta:
+   ```bash
+   git clone [https://github.com/tu-usuario/SportingGym.git](https://github.com/tu-usuario/SportingGym.git)
+   cd SportingGym
+2. Ejecutar el contenedor:
+   docker compose up --build
+3. Abre tu navegador:
+   Frontend (App): http://localhost:5173
+   Backend (API): http://localhost:8080/api/socios
+### Opción 2: Desarrollo Local Manual (Sin Docker)
+Si deseas modificar el código y correr los servicios por separado.
+Prerrequisitos: .NET 8 SDK, Node.js & npm, PostgreSQL.
+1. Configuración del Backend
+   1. Clona el repositorio.
+   2. Navega a la carpeta del Backend y configura tu cadena de conexión en appsettings.json.
    3. Ejecuta las migraciones para crear la base de datos:
       dotnet ef database update
-   4. Corre la API:
+   4. Corre la Api:
       dotnet run
-### 2. Configuración del Frontend
-   1. Navega a la carpeta del Frontend:
-      cd sporting-gym-frontend
+2. Configuración del Frontend
+   1. Navega a la carpeta del Frontend (cd sportinggym-frontend).
    2. Instala las dependencias:
-      npm install
-   3. Crea un archivo .env si es necesario para apuntar a tu API (por defecto localhost:puerto).
-   4. Inicia el servidor de desarrollo:
-      npm run dev
+        npm install
+   3. Inicia el servidor de desarrollo:
+        npm run dev
