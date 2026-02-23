@@ -18,7 +18,7 @@
 | ![Dashboard](./screenshots/dashboard.png) | ![Socios](./screenshots/Socios.png) |
 | *Vista general de KPIs y alertas* | *Listado con estados y fechas de vencimiento* |
 | **Gestión de Membresías** | **Control de Pagos y Caja** |
-| ![Membresías](./screenshots/Membresias.png) | ![Pagos](./screenshots/Pagos.png) |
+| ![Membresías](./screenshots/Membresías.png) | ![Pagos](./screenshots/Pagos.png) |
 | *Configuración de planes y tarifas dinámicas* | *Registro de ingresos y reporte de cierre listo para imprimir* |
 
 ---
