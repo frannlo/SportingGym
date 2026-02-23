@@ -30,15 +30,17 @@ namespace SportingGym.WebApi.Controllers
             // 1. Total de Socios (No eliminados)
             var totalSocios = await _context.Socios.CountAsync(s => s.Activo);
 
-            // 2. Socios con Membresía Vigente (Asumiendo que tienes una tabla Membresias)
-            // Si no tienes tabla Membresias aún poblada, esto dará 0, no pasa nada.
+            //Socios Activos: Cuenta IDs de socios únicos que tienen al menos una membresía vigente
             var sociosActivos = await _context.Membresias
-                .CountAsync(m => m.FechaFin >= hoy);
+            .Where(m => m.FechaFin >= hoy)
+            .Select(m => m.SocioId)
+            .Distinct() // <--- Evita contar al mismo socio dos veces
+            .CountAsync();
 
             // 3. Ingresos de este mes
             var ingresosMes = await _context.Pagos
                 .Where(p => p.FechaPago >= inicioMes)
-                .SumAsync(p => p.Monto);
+                .SumAsync(p => p.MontoEfectivo + p.MontoTransferencia + p.MontoTarjeta);
 
             // 4. Por vencer (Vencen entre hoy y 7 días más)
             var porVencer = await _context.Membresias

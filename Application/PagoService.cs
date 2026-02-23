@@ -26,21 +26,23 @@ namespace SportingGym.WebApi.Application.Services
             var nuevoPago = new Pago
             {
                 SocioId = dto.SocioId,
-                Monto = dto.Monto,
-                Metodo = (MetodoPago)dto.MetodoPagoId, // Casteo de int a Enum
+                MontoEfectivo = dto.MontoEfectivo,
+                MontoTransferencia = dto.MontoTransferencia,
+                MontoTarjeta = dto.MontoTarjeta,
                 FechaPago = DateTime.UtcNow,
                 Comprobante = dto.Comprobante
             };
 
             _context.Pagos.Add(nuevoPago);
             await _context.SaveChangesAsync();
-
+            
             return new PagoResponseDto
             {
                 Id = nuevoPago.Id,
                 Fecha = nuevoPago.FechaPago,
-                Monto = nuevoPago.Monto,
-                Metodo = nuevoPago.Metodo.ToString(), // "Efectivo", "Transferencia", etc.
+                MontoEfectivo = nuevoPago.MontoEfectivo,
+                MontoTransferencia = nuevoPago.MontoTransferencia,
+                MontoTarjeta = nuevoPago.MontoTarjeta,
                 Comprobante = nuevoPago.Comprobante,
                 NombreSocio = $"{socio.Nombre} {socio.Apellido}"
             };
@@ -58,10 +60,11 @@ namespace SportingGym.WebApi.Application.Services
             {
                 Id = p.Id,
                 Fecha = p.FechaPago,
-                Monto = p.Monto,
-                Metodo = p.Metodo.ToString(),
+                MontoEfectivo = p.MontoEfectivo,
+                MontoTransferencia = p.MontoTransferencia,
+                MontoTarjeta = p.MontoTarjeta,
                 Comprobante = p.Comprobante,
-                NombreSocio = $"{p.Socio.Nombre} {p.Socio.Apellido}"
+                NombreSocio = p.Socio != null ? $"{p.Socio.Nombre} {p.Socio.Apellido}" : "Socio Eliminado"
             }).ToList();
         }
 
@@ -75,11 +78,13 @@ namespace SportingGym.WebApi.Application.Services
             return pagos.Select(p => new PagoResponseDto
             {
                 Id = p.Id,
-                Monto = p.Monto,
                 Fecha = p.FechaPago,
-                Metodo = p.Metodo.ToString(),
+                // Reemplazamos Monto y Metodo por los nuevos campos:
+                MontoEfectivo = p.MontoEfectivo,
+                MontoTransferencia = p.MontoTransferencia,
+                MontoTarjeta = p.MontoTarjeta,
                 NombreSocio = p.Socio != null ? $"{p.Socio.Nombre} {p.Socio.Apellido}" : "Socio Eliminado",
-                Comprobante = null
+                Comprobante = p.Comprobante
             }).ToList();
         }
     }

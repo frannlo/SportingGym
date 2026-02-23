@@ -12,5 +12,6 @@
         public string Telefono { get; set; }
         public DateTime FechaNacimiento { get; set; }
         public string NombrePlan { get; set; } = "Sin Plan";
+        public DateTime? FechaVencimiento { get; set; }
     }
 }

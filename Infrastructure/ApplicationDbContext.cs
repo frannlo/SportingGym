@@ -30,8 +30,16 @@ namespace SportingGym.Infrastructure
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Pago>()
-                .Property(p => p.Monto)
-                .HasPrecision(18, 2);
+                .Property(p => p.MontoEfectivo)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Pago>()
+                .Property(p => p.MontoTransferencia)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Pago>()
+                .Property(p => p.MontoTarjeta)
+                .HasColumnType("decimal(18,2)");
         }
     }
 }

@@ -25,11 +25,8 @@ namespace SportingGym.WebApi.Application.Services
                 .ToListAsync();
 
             return socios.Select(s => {
-                // Buscamos la última membresía vigente
-                var ultimaMembresia = s.Membresias
-                    .Where(m => m.FechaFin >= DateTime.UtcNow) // Que no haya vencido
-                    .OrderByDescending(m => m.FechaFin)
-                    .FirstOrDefault();
+                // Buscamos la membresía más lejana en el tiempo (la vigente)
+                var ultimaMembresia = s.Membresias.OrderByDescending(m => m.FechaFin).FirstOrDefault();
 
                 return new SocioResponseDto
                 {
@@ -41,8 +38,8 @@ namespace SportingGym.WebApi.Application.Services
                     Email = s.Email,
                     Telefono = s.Telefono,
                     FechaNacimiento = s.FechaNacimiento,
-                    // Lógica para mostrar el plan
-                    NombrePlan = ultimaMembresia != null ? ultimaMembresia.TipoMembresia.Nombre : "Sin membresía"
+                    NombrePlan = ultimaMembresia != null ? ultimaMembresia.TipoMembresia.Nombre : "Sin membresía",
+                    FechaVencimiento = ultimaMembresia?.FechaFin
                 };
             }).ToList();
         }

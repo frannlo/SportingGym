@@ -111,10 +111,11 @@ const Socios = () => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
-              <th className="p-4 font-semibold">Estado</th> {/* NUEVA COLUMNA */}
+              <th className="p-4 font-semibold">Estado</th> 
               <th className="p-4 font-semibold">Nombre</th>
               <th className="p-4 font-semibold">DNI</th>
               <th className="p-4 font-semibold">Plan Actual</th>
+              <th className="p-4 font-semibold">Vencimiento</th> 
               <th className="p-4 font-semibold text-right">Acciones</th>
             </tr>
           </thead>
@@ -129,7 +130,7 @@ const Socios = () => {
               sociosFiltrados.map((socio) => (
                 <tr key={socio.id} className={`transition-colors ${socio.activo ? 'hover:bg-slate-50' : 'bg-slate-50/80 grayscale opacity-75'}`}>
                   
-                  {/* 1. Estado (Semáforo) */}
+                  {/* 1. Estado */}
                   <td className="p-4">
                     {socio.activo ? (
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
@@ -169,7 +170,20 @@ const Socios = () => {
                       </span>
                     )}
                   </td>
-
+                  {/* Vencimiento */}
+                  <td className="p-4">
+                      {socio.fechaVencimiento ? (
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                              new Date(socio.fechaVencimiento) >= new Date() 
+                                  ? "bg-green-100 text-green-700" // Al día (Verde)
+                                  : "bg-red-100 text-red-700"     // Vencido (Rojo)
+                          }`}>
+                              {new Date(socio.fechaVencimiento).toLocaleDateString('es-AR')}
+                          </span>
+                      ) : (
+                          <span className="text-slate-400 text-xs font-medium">Sin membresía</span>
+                      )}
+                  </td>
                   {/* 5. Acciones */}
                   <td className="p-4 text-right space-x-2">
                     <button 

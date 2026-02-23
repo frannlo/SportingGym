@@ -9,5 +9,9 @@ namespace SportingGym.Application.DTOs
 
         [Required]
         public int TipoMembresiaId { get; set; }
+        public decimal MontoEfectivo { get; set; }
+        public decimal MontoTransferencia { get; set; }
+        public decimal MontoTarjeta { get; set; }
+        public string? Comprobante { get; set; }
     }
 }

@@ -32,7 +32,6 @@ namespace SportingGym.WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<PagoResponseDto>>> GetAll()
         {
-            // Asegúrate de que tu servicio tenga este método llamado GetAllAsync o ObtenerTodosAsync
             var pagos = await _service.GetAllAsync();
             return Ok(pagos);
         }

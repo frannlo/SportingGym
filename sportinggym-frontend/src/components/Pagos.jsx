@@ -3,7 +3,6 @@ import { DollarSign, Calendar, ChevronLeft, ChevronRight, Search, Printer } from
 import api from "../config/api";
 import toast from "react-hot-toast";
 import CobroModal from "./CobroModal";
- 
 
 const Pagos = () => {
   const [pagos, setPagos] = useState([]);
@@ -32,8 +31,8 @@ const Pagos = () => {
   );
 
   // Calculamos el total del día
-  const totalDia = pagosDelDia.reduce((acc, curr) => acc + curr.monto, 0);
-
+  const totalDia = pagosDelDia.reduce((acc, curr) => acc + (curr.total || 0), 0);
+  
   // Funciones para cambiar de día
   const cambiarDia = (dias) => {
     const fecha = new Date(fechaSeleccionada);
@@ -46,19 +45,29 @@ const Pagos = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       
-      {/* Encabezado y Selector de Fecha */}
-      <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 border-b border-slate-200 pb-6">
+      {/* 🖨️ ENCABEZADO DE IMPRESIÓN (Solo visible en papel) */}
+      <div className="hidden print:block text-center border-b-2 border-slate-800 pb-4 mb-6">
+          <h1 className="text-3xl font-bold uppercase tracking-widest text-slate-800">SportingGym</h1>
+          <h2 className="text-xl font-semibold text-slate-600 mt-1">Reporte de Cierre de Caja</h2>
+          <p className="text-slate-500 mt-2">
+              Fecha de control: {new Date(fechaSeleccionada).toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+          <p className="text-slate-500">Total Ingresado: <span className="font-bold text-slate-800">${totalDia.toLocaleString()}</span></p>
+      </div>
+
+      {/* 💻 Encabezado y Selector de Fecha (Se oculta al imprimir) */}
+      <div className="print:hidden flex flex-col md:flex-row justify-between items-end md:items-center gap-4 border-b border-slate-200 pb-6">
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Control de Caja</h2>
           <p className="text-slate-500">Seguimiento diario de ingresos.</p>
         </div>
 
         <button 
-                onClick={() => setShowModal(true)}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-md transition-all"
-            >
-                <DollarSign size={20} /> Registrar Cobro
-            </button>
+            onClick={() => setShowModal(true)}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-md transition-all"
+        >
+            <DollarSign size={20} /> Registrar Cobro
+        </button>
 
         {/* Control de Fecha */}
         <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm">
@@ -90,8 +99,8 @@ const Pagos = () => {
         </div>
       </div>
 
-      {/* Tarjeta de Resumen del Día */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* 💻 Tarjeta de Resumen del Día (Se oculta al imprimir) */}
+      <div className="print:hidden grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Total del Día */}
         <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
             <div className="flex justify-between items-start">
@@ -122,9 +131,11 @@ const Pagos = () => {
         </div>
       </div>
 
-      {/* Tabla de Movimientos */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+      {/* 📊 Tabla de Movimientos (Se imprime sin sombras ni bordes) */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden print:shadow-none print:border-none print:rounded-none">
+        
+        {/* Ocultamos este título al imprimir, ya que usamos el encabezado principal arriba */}
+        <div className="print:hidden px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
             <h3 className="font-bold text-slate-700">Movimientos Detallados</h3>
             <span className="text-xs font-mono text-slate-400">
                 {new Date(fechaSeleccionada).toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -159,15 +170,22 @@ const Pagos = () => {
                   </td>
                   
                   {/* Socio */}
-                  <td className="p-4 font-medium text-slate-800">
-                    {pago.socio ? `${pago.socio.nombre} ${pago.socio.apellido}` : "Socio Eliminado"}
-                  </td>
+                <td className="p-4 font-medium text-slate-800">
+                  {pago.nombreSocio}
+                </td>
                   <td className="p-4 text-slate-600">
-                    Pago de Membresía
-                  </td>
+                  <div className="flex flex-col items-start gap-1">
+                      <span>Pago de Membresía</span>
+                      <div className="flex gap-1 mt-1">
+                          {pago.montoEfectivo > 0 && <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Efectivo</span>}
+                          {pago.montoTransferencia > 0 && <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Transf.</span>}
+                          {pago.montoTarjeta > 0 && <span className="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Tarjeta</span>}
+                      </div>
+                  </div>
+                </td>
                   {/* Monto */}
                   <td className="p-4 text-right font-bold text-slate-700">
-                    ${pago.monto.toLocaleString()}
+                    ${pago.total?.toLocaleString() || 0}
                   </td>
                 </tr>
               ))
@@ -188,8 +206,7 @@ const Pagos = () => {
         <CobroModal 
             onClose={() => setShowModal(false)}
             onSuccess={() => {
-                cargarPagos();      // Recargar la tabla de pagos
-                // Opcional: Si muestras alertas de "caja actualizada", aquí irían
+                cargarPagos();      
             }}
         />
       )}

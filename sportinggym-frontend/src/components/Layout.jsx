@@ -1,17 +1,20 @@
-import Sidebar from "./Sidebar";
+import Sidebar from "./Sidebar"; 
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex">
-      {/* Sidebar fijo */}
-      <Sidebar />
+    // Agregamos print:bg-white para no imprimir el fondo gris
+    <div className="min-h-screen bg-[#C1C2CF] print:bg-white font-sans text-slate-900">
+      
+      {/* print:hidden oculta el menú al imprimir */}
+      <div className="print:hidden">
+        <Sidebar />
+      </div>
 
-      {/* Contenido Dinámico (aquí se renderizarán las páginas) */}
-      <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen w-full">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {children}
-        </div>
+      {/* print:ml-0 quita el margen del sidebar en la hoja de papel */}
+      <main className="ml-64 print:ml-0 p-4 md:p-8 print:p-0">
+        {children}
       </main>
+
     </div>
   );
 };
