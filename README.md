@@ -72,7 +72,7 @@ La forma más sencilla de probar el proyecto. No necesitas instalar bases de dat
 
 1. Clona el repositorio y entra a la carpeta:
    ```bash
-   git clone [https://github.com/tu-usuario/SportingGym.git](https://github.com/tu-usuario/SportingGym.git)
+   git clone https://github.com/frannlo/SportingGym.git
    cd SportingGym
 2. Ejecutar el contenedor:
    docker compose up --build
